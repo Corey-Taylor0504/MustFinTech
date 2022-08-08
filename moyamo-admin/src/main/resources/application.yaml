@@ -1,0 +1,191 @@
+spring:
+  profiles:
+    active: local
+---
+
+
+logging:
+  #    file: "logs/application.log"
+  level:
+    org:
+#      hibernate.type.descriptor.sql: trace
+      hibernate.type.descriptor.sql: debug
+
+    net.infobank.moyamo.service.PushNotificationServiceImpl: debug
+    net.infobank.moyamo.push.module.FcmPushModule: debug
+
+---
+cloud:
+  aws:
+    #    s3:
+    #      bucket: "moyamo-3"
+    credentials:
+      accessKey: AKIAIRCS4T66XNKLTCIQ
+      secretKey: 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
+    s3:
+      bucket: moyamo-develop
+      public: true
+    region:
+      static: ap-northeast-2
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 150MB
+      max-request-size: 150MB
+  security:
+    enabled: false
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 958180173202-sii4epowero1eouvvjrlrnt27sikub08k.apps.googleusercontent.com
+            client-secret: k0asdfag801WdcJF8k9ST_8SG9
+          facebook:
+            client-id: 574403843466521
+            client-secret: 478097f7ae7a2059c27e6ca86115d836
+  mvc:
+    view:
+      prefix: /WEB-INF/view/
+      suffix: .jsp
+
+  #Spring Boot 재기동 없이 소스코드 적용
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+
+  profiles: dev
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+    default-property-inclusion: always
+
+  #
+  #  security:
+  #    oauth2:
+  #      client:
+  #        registration:
+  #          naver:
+  #            clientId: ZZFDrX32pwKQBtqddrAs
+  #            clientSecret: B_F_Klw77m
+
+
+  rabbitmq:
+    host: localhost #hyper, pwhyper
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      direct:
+        retry:
+          max-attempts: 3
+      simple:
+        batch-size: 10
+        max-concurrency: 10
+        retry:
+          max-attempts: 3
+      type: simple
+
+  datasource:
+    url: jdbc:mysql://bbchatlanding.c9mqakojzy5f.ap-northeast-2.rds.amazonaws.com:3306/moyamo_test3?characterEncoding=utf-8&serverTimezone=UTC
+    username: ilabbbcht
+    password: pwilabbbchat
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    initialization-mode: always
+    hikari:
+      connection-timeout: 5000
+      validation-timeout: 1000
+      minimum-idle: 10
+      maximum-pool-size: 20
+      max-lifetime: 30000
+      leak-detection-threshold: 10000
+      idle-timeout: 10000
+  jpa:
+    open-in-view: false
+    database: MYSQL
+    generate-ddl: true
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+
+    properties:
+      hibernate:
+
+        #5.2 auto-inclument 이슈
+        use-new-id-generator-mappings: false
+        enable_lazy_load_no_trans: true
+        format_sql: true
+        use_sql_comments: true
+        #dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        dialect: org.hibernate.spatial.dialect.mysql.MySQL5SpatialDialect
+        default_batch_fetch_size: 100
+        max_fetch_depth: 6
+        cache:
+          region_prefix: hibernate
+          #use_second_level_cache: true
+          use_second_level_cache: false
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+            #region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        search:
+          # 인덱싱 차단
+          #          autoregister_listeners: false
+          #          indexing_strategy: manual
+          # 인덱싱 차단 End
+          default:
+            indexmanager: elasticsearch   #5.6.16
+            elasticsearch:
+              host: http://localhost:9200
+              index_schema_management_strategy: update   #update
+              #username: elastic
+              #password: changemez
+              log:
+                json_pretty_printing: true
+              required_index_status: yellow
+              dynamic_mapping: true
+              update_all_types: true
+
+  application:
+    name: example
+  cache:
+    type: redis
+    redis:
+      time-to-live: 30s
+
+
+  redis:
+    host: localhost
+    port: 6379
+
+server:
+#변경필요
+  port: 8080
+  servlet:
+    session:
+      timeout: 9999m
+    jsp:
+      init-parameters:
+        development: true
+
+custom:
+  oauth2:
+    kakao:
+      client-id: 738cf90e36ac56b95ffb4bee8e0a9d86
+      client-secret: BTbAY3xqX6DSJ5ih8ex2JzHf9YZ5ibSc
+    naver:
+      client-id: UZXSxENZhuUEG9KPnUrz
+      client-secret: DR70V2rEhO
+
+logging.level:
+  net.infobank.moyamo.service.PushNotificationServiceImpl: debug
+  net.infobank.moyamo.push.module.FcmPushModule: debug
+
+infobank:
+  emma:
+    test: true

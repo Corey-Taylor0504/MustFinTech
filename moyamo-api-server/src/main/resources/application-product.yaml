@@ -1,0 +1,209 @@
+---
+spring:
+
+  servlet.multipart.max-file-size: "50MB"
+  servlet.multipart.max-request-size: "50MB"
+
+  #이메일 인증 확인, 서버 정보 설정
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: no-reply@moyamolab.com
+    password: 1nf0bank###
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+    default-property-inclusion: always
+
+  webflux:
+    static-path-pattern: /**
+
+  rabbitmq:
+    host: ec2-15-165-135-64.ap-northeast-2.compute.amazonaws.com
+    port: 5672
+    username: moyamo
+    password: moyamopw
+    listener:
+      direct:
+        retry:
+          max-attempts: 3
+      simple:
+        batch-size: 10
+        max-concurrency: 10
+        retry:
+          max-attempts: 3
+      type: simple
+
+  datasource:
+    url: jdbc:mysql://moyamo-product.cluster-c7mmfvbcxzve.ap-northeast-2.rds.amazonaws.com:3306/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC&useSSL=false
+    username: moyamodb
+    password: moyamodbpw
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    initialization-mode: always
+    hikari:
+      connection-timeout: 5000
+      validation-timeout: 1000
+      minimum-idle: 20
+      maximum-pool-size: 20
+      max-lifetime: 30000
+      leak-detection-threshold: 10000
+      idle-timeout: 10000
+  jpa:
+    open-in-view: false
+    database: MYSQL
+    generate-ddl: false
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+
+    properties:
+      hibernate:
+        #5.2 auto-inclument 이슈
+        use-new-id-generator-mappings: false
+        enable_lazy_load_no_trans: true
+        format_sql: true
+        use_sql_comments: true
+        #dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        dialect: org.hibernate.spatial.dialect.mysql.MySQL5SpatialDialect
+        default_batch_fetch_size: 100
+        max_fetch_depth: 6
+        cache:
+          region_prefix: hibernate
+          use_second_level_cache: false
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+        search:
+          elasticsearch.analysis_definition_provider: net.infobank.moyamo.search.elasticsearch.CustomProvider
+          # 인덱싱 차단
+          #          autoregister_listeners: false
+          #          indexing_strategy: manual
+          # 인덱싱 차단 End
+          default:
+            indexmanager: elasticsearch   #5.6.16
+            elasticsearch:
+              host: http://172.31.40.155:9200
+              index_schema_management_strategy: update
+              #username: elastic
+              #password: changemez
+              dynamic_mapping: true
+              update_all_types: true
+              required_index_status: yellow
+              log:
+                json_pretty_printing: true
+  application:
+    name: example
+  cache:
+    type: redis
+    redis:
+      time-to-live: 30s
+  redis:
+    host: 172.31.40.155
+    port: 6379
+    password: moyamopw
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+
+  health:
+    circuitbreakers.enabled: true
+    ratelimiters.enabled: false
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 500
+        permittedNumberOfCallsInHalfOpenState: 30
+        waitDurationInOpenState: 10000
+        failureRateThreshold: 60
+        eventConsumerBufferSize: 10
+        registerHealthIndicator: true
+      someShared:
+        slidingWindowSize: 50
+        permittedNumberOfCallsInHalfOpenState: 10
+    instances:
+      default:
+        baseConfig: default
+        waitDurationInOpenState: 5000
+      backendB:
+        baseConfig: someShared
+
+  timelimiter:
+    instances:
+      default:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+
+reactor:
+  netty:
+    http:
+      server:
+        accessLogEnabled: true
+
+feign:
+  client:
+    config:
+      default: # @FeignClient 에서 name 값, 전역으로 설정하려면 default
+        connectTimeout: 5000
+        readTimeout: 2000
+        loggerLevel: FULL
+
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAIRCS4T66XNKLTCIQ
+      secretKey: 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
+    s3:
+      bucket: moyamo-product
+    region:
+      static: ap-northeast-2
+
+infobank:
+  emma:
+    test: false # emma 발송 여부 및 인증번호 설정
+    server:
+      url: http://172.31.40.155:8085
+  token:
+    accessToken:
+      expiredAt:
+        minutes: 5400
+    refreshToken:
+      expiredAt:
+        months: 2
+
+
+moyamo.policy.terms: https://moyamo.co.kr/termOfService.html
+moyamo.policy.location: https://moyamo.co.kr/positionOfService.html
+moyamo.policy.privacy: https://moyamo.co.kr/privacyOfService.html
+moyamo.policy.notice: https://moyamo.co.kr/notice.html
+
+#비밀번호 변경페이지
+moyamo.password.modify: http://moyamo-resource-public.s3.ap-northeast-2.amazonaws.com/modify_password_product.html
+
+
+#deeplink 호스트
+spring.firebase.dynamiclink.domainUriPrefix: https://go.moyamo.co.kr
+
+#rest 호스트 정보
+server.host: http://moyamo-rest-product-350440685.ap-northeast-2.elb.amazonaws.com
+
+#이미지 주소 호스트
+server.s3host: https://cdn.moyamo.co.kr/
+
+#알림 발송 logo
+server.logo: https://cdn.moyamo.co.kr/commons/logo.png
+
+

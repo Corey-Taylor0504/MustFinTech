@@ -1,0 +1,185 @@
+spring.profiles.active : local
+
+server:
+  port: 8088
+  s3host: http://d1ujq2dpv14gay.cloudfront.net/dev/
+  logo: http://d1ujq2dpv14gay.cloudfront.net/dev/commons/logo.png
+
+#spring.jpa.properties.hibernate.format_sql: true
+
+moyamo:
+  jobs:
+    statistics:
+#      cron: "0 0 */1 * * *"
+      cron: "*/10 * * * * *"
+      enable: false
+    ranking:
+#      cron: "* */10 * * * *"
+      cron: "0 */1 * * * *"
+      enable: true
+    notification:
+      delivery:
+        cron: "0 */1 * * * *"
+        enable: false
+    shop:
+      goods_update:
+        cron: "0 */30 * * * *"
+        enable: false
+    photo:
+      cron: "0 */10 * * * *"
+      enable: false
+
+---
+
+
+spring:
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+    default-property-inclusion: always
+
+  webflux:
+    static-path-pattern: /**
+
+  rabbitmq:
+    host: 52.79.115.11
+    port: 5672
+    username: simda
+    password: simdapw
+    listener:
+      direct:
+        retry:
+          max-attempts: 3
+      simple:
+        batch-size: 10
+        max-concurrency: 10
+        retry:
+          max-attempts: 3
+      type: simple
+
+  datasource:
+#    url: jdbc:mysql://localhost:3306/moyamo_example?characterEncoding=utf-8&serverTimezone=UTC
+#    username: root
+#    password: yspark9719!
+    url: jdbc:mysql://moyamo-develop.c7mmfvbcxzve.ap-northeast-2.rds.amazonaws.com/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC
+    username: moyamodb
+    password: moyamodbpw
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    initialization-mode: always
+    hikari:
+      connection-timeout: 5000
+      validation-timeout: 1000
+      minimum-idle: 2
+      maximum-pool-size: 2
+      max-lifetime: 30000
+      leak-detection-threshold: 10000
+      idle-timeout: 10000
+  jpa:
+    open-in-view: false
+    database: MYSQL
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+
+    properties:
+      hibernate:
+        #5.2 auto-inclument 이슈
+        use-new-id-generator-mappings: false
+        enable_lazy_load_no_trans: true
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.spatial.dialect.mysql.MySQL5SpatialDialect
+        default_batch_fetch_size: 100
+        max_fetch_depth: 6
+        cache:
+          region_prefix: hibernate
+          use_second_level_cache: false
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+        search:
+#          elasticsearch.analysis_definition_provider: net.infobank.moyamo.search.elasticsearch.CustomProvider
+          # 인덱싱 차단
+#          autoregister_listeners: false
+#          indexing_strategy: manual
+          # 인덱싱 차단 End
+          default:
+            indexmanager: elasticsearch   #5.6.16
+            elasticsearch:
+              host: http://52.79.115.11:9200
+              index_schema_management_strategy: update
+              #username: elastic
+              #password: changemez
+              log:
+                json_pretty_printing: true
+              required_index_status: yellow
+              dynamic_mapping: true
+              update_all_types: true
+  application:
+    name: example
+  cache:
+    type: none
+    redis:
+      time-to-live: 30s
+
+  redis:
+    host: localhost
+    port: 6379
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+
+  health:
+    circuitbreakers.enabled: true
+    ratelimiters.enabled: false
+
+
+logging:
+  #    file: "logs/application.log"
+  level:
+#    net.infobank.moyamo.jobs.ScheduledJobs: DEBUG
+    net.infobank.moyamo.jobs.ScheduledJobs: DEBUG
+    org:
+      hibernate.type.descriptor.sql: trace
+#      hibernate.type.descriptor.sql: TRACE
+
+
+
+cloud:
+  aws:
+    #    s3:
+    #      bucket: "moyamo-3"
+    credentials:
+      accessKey: AKIAIRCS4T66XNKLTCIQ
+      secretKey: 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
+    s3:
+      bucket: moyamo-develop
+    region:
+      static: ap-northeast-2
+
+infobank:
+  token:
+    accessToken:
+      expiredAt:
+        minutes: 43200
+    refreshToken:
+      expiredAt:
+        months: 2
+  mt:
+    datasource:
+      url: jdbc:mysql://172.16.0.134/itvMnStudioTemplate?characterEncoding=euckr
+      username: itv
+      password: itvpw
+      driverClassName: com.mysql.jdbc.Driver
+    callback: 01012341234
+    msg: "[모야모] 휴대폰 인증번호 [#authCode]를 입력해 주세요."
+
+

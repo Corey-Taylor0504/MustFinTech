@@ -1,0 +1,158 @@
+
+server:
+  port: 8088
+  s3host: http://d1ujq2dpv14gay.cloudfront.net
+  logo: http://d1ujq2dpv14gay.cloudfront.net/commons/logo.png
+
+#spring.jpa.properties.hibernate.format_sql: true
+#logging.level.org.hibernate.type.descriptor.sql: trace
+
+moyamo:
+  jobs:
+    statistics:
+      cron: "0 0 */1 * * *"
+      enable: true
+    notification:
+      delivery:
+        cron: "0 */5 * * * *"
+        enable: true
+
+    ranking:
+      #cron: "0 0 0 * * *"
+      cron: "0 */30 * * * *"
+      enable: true
+
+    shop:
+      goods_update:
+        cron: "0 */10 * * * *"
+        enable: true
+
+    photo:
+      cron: "0 */10 * * * *"
+      enable: true
+
+---
+
+spring:
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+    default-property-inclusion: always
+
+  webflux:
+    static-path-pattern: /**
+
+  rabbitmq:
+    host: 172.31.40.155 #hyper, pwhyper
+    port: 5672
+    username: moyamo
+    password: moyamopw
+    listener:
+      direct:
+        retry:
+          max-attempts: 3
+      simple:
+        batch-size: 10
+        max-concurrency: 10
+        retry:
+          max-attempts: 3
+      type: simple
+
+  datasource:
+    url: jdbc:mysql://moyamo-product.cluster-c7mmfvbcxzve.ap-northeast-2.rds.amazonaws.com:3306/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC&useSSL=false
+    username: moyamodb
+    password: moyamodbpw
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    initialization-mode: always
+    hikari:
+      connection-timeout: 5000
+      validation-timeout: 1000
+      minimum-idle: 5
+      maximum-pool-size: 5
+      max-lifetime: 30000
+      leak-detection-threshold: 10000
+      idle-timeout: 10000
+  jpa:
+    open-in-view: false
+    database: MYSQL
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+
+    properties:
+      hibernate:
+        #5.2 auto-inclument 이슈
+        use-new-id-generator-mappings: false
+        enable_lazy_load_no_trans: true
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.spatial.dialect.mysql.MySQL5SpatialDialect
+        default_batch_fetch_size: 100
+        max_fetch_depth: 6
+        cache:
+          region_prefix: hibernate
+          use_second_level_cache: false
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+        search:
+          elasticsearch.analysis_definition_provider: net.infobank.moyamo.search.elasticsearch.CustomProvider
+          default:
+            indexmanager: elasticsearch   #5.6.16
+            elasticsearch:
+              host: http://172.31.40.155:9200
+              index_schema_management_strategy: update
+              dynamic_mapping: true
+              update_all_types: true
+              required_index_status: yellow
+              log:
+                json_pretty_printing: true
+
+  application:
+    name: example
+  cache:
+    type: redis
+    redis:
+      time-to-live: 30s
+  redis:
+    host: 172.31.40.155
+    port: 6379
+    password: moyamopw
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+
+  health:
+    circuitbreakers.enabled: true
+    ratelimiters.enabled: false
+
+
+logging:
+  #    file: "logs/application.log"
+  level:
+    net.infobank.moyamo.jobs.ScheduledJobs: DEBUG
+    org:
+      hibernate.type.descriptor.sql: INFO
+
+cloud:
+  aws:
+    #    s3:
+    #      bucket: "moyamo-3"
+    credentials:
+      accessKey: AKIAIRCS4T66XNKLTCIQ
+      secretKey: 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
+    s3:
+      bucket: moyamo-product
+    region:
+      static: ap-northeast-2
+
+
+#비밀번호 변경페이지
+moyamo.password.modify: http://moyamo-resource-public.s3.ap-northeast-2.amazonaws.com/modify_password_product.html

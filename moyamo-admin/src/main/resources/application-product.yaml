@@ -1,0 +1,196 @@
+logging:
+  level:
+    org.hibernate.type.descriptor.sql: debug
+    net.infobank.moyamo.service.PushNotificationServiceImpl: debug
+    net.infobank.moyamo.push.module.FcmPushModule: debug
+---
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAIRCS4T66XNKLTCIQ
+      secretKey: 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
+    s3:
+      bucket: moyamo-product
+    region:
+      static: ap-northeast-2
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 150MB
+      max-request-size: 150MB
+  security:
+    enabled: false
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 958180173202-sii4epowero1eouvvjrlrnt27sikub08k.apps.googleusercontent.com
+            client-secret: k0asdfag801WdcJF8k9ST_8SG9
+          facebook:
+            client-id: 574403843466521
+            client-secret: 478097f7ae7a2059c27e6ca86115d836
+  mvc:
+    view:
+      prefix: /WEB-INF/view/
+      suffix: .jsp
+
+  #Spring Boot 재기동 없이 소스코드 적용
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+    default-property-inclusion: always
+
+  #
+  #  security:
+  #    oauth2:
+  #      client:
+  #        registration:
+  #          naver:
+  #            clientId: ZZFDrX32pwKQBtqddrAs
+  #            clientSecret: B_F_Klw77m
+
+
+  rabbitmq:
+    host: localhost #hyper, pwhyper
+    port: 5672
+    username: guest
+    password: guest
+    listener:
+      direct:
+        retry:
+          max-attempts: 3
+      simple:
+        batch-size: 10
+        max-concurrency: 10
+        retry:
+          max-attempts: 3
+      type: simple
+
+  datasource:
+    url: jdbc:mysql://moyamo-product.cluster-c7mmfvbcxzve.ap-northeast-2.rds.amazonaws.com:3306/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC&useSSL=false
+    username: moyamodb
+    password: moyamodbpw
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    initialization-mode: always
+    hikari:
+      connection-timeout: 5000
+      validation-timeout: 5000
+      minimum-idle: 10
+      maximum-pool-size: 10
+      max-lifetime: 1800000
+      leak-detection-threshold: 10000
+      idle-timeout: 10000
+  jpa:
+    open-in-view: false
+    database: MYSQL
+    generate-ddl: true
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+
+    properties:
+      hibernate:
+
+        #5.2 auto-inclument 이슈
+        use-new-id-generator-mappings: false
+        enable_lazy_load_no_trans: true
+        format_sql: true
+        use_sql_comments: true
+        #dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        dialect: org.hibernate.spatial.dialect.mysql.MySQL5SpatialDialect
+        default_batch_fetch_size: 100
+        max_fetch_depth: 6
+        cache:
+          region_prefix: hibernate
+          #use_second_level_cache: true
+          use_second_level_cache: false
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+            #region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        search:
+          # 인덱싱 차단
+          #          autoregister_listeners: false
+          #          indexing_strategy: manual
+          # 인덱싱 차단 End
+          default:
+            indexmanager: elasticsearch   #5.6.16
+            elasticsearch:
+              host: http://172.31.40.155:9200
+              index_schema_management_strategy: update   #update
+              required_index_status: yellow
+              dynamic_mapping: true
+              update_all_types: true
+              #username: elastic
+              #password: changemez
+              log:
+                json_pretty_printing: true
+
+
+  application:
+    name: example
+  cache:
+    type: redis
+    redis:
+      time-to-live: 30s
+  redis:
+    host: 172.31.40.155
+    port: 6379
+    password: moyamopw
+
+server:
+  port: 80
+  servlet:
+    session:
+      timeout: 9999m
+    jsp:
+      init-parameters:
+        development: true
+
+custom:
+  oauth2:
+    kakao:
+      client-id: 738cf90e36ac56b95ffb4bee8e0a9d86
+      client-secret: BTbAY3xqX6DSJ5ih8ex2JzHf9YZ5ibSc
+    naver:
+      client-id: UZXSxENZhuUEG9KPnUrz
+      client-secret: DR70V2rEhO
+
+logging.level:
+  net.infobank.moyamo.service.PushNotificationServiceImpl: debug
+  net.infobank.moyamo.push.module.FcmPushModule: debug
+
+moyamo.policy.terms: https://moyamo-landing.s3.ap-northeast-2.amazonaws.com/termOfService.html
+moyamo.policy.location: https://moyamo-landing.s3.ap-northeast-2.amazonaws.com/positionOfService.html
+moyamo.policy.privacy: https://moyamo-landing.s3.ap-northeast-2.amazonaws.com/privacyOfService.html
+moyamo.policy.notice: https://moyamo-landing.s3.ap-northeast-2.amazonaws.com/index.html
+
+#비밀번호 변경페이지
+moyamo.password.modify: http://moyamo-resource-public.s3.ap-northeast-2.amazonaws.com/modify_password_product.html
+
+#deeplink 호스트
+spring.firebase.dynamiclink.domainUriPrefix: https://go.moyamo.co.kr
+
+#rest 호스트 정보
+server.host: http://moyamo-rest-product-350440685.ap-northeast-2.elb.amazonaws.com
+
+#이미지 주소 호스트
+server.s3host: https://d1ujq2dpv14gay.cloudfront.net/
+
+#알림 발송 logo
+server.logo: https://d1ujq2dpv14gay.cloudfront.net/commons/logo.png
+
+infobank:
+  emma:
+    test: true
+
+

@@ -1,0 +1,68 @@
+feed :
+  debug :  true
+#    today_event.indexes = [3]
+#    event.indexes = [9]
+#    issue.indexes = [15]
+#    issue_list.indexes = []
+  status :
+    min :
+      read: 5
+      receiving: 30
+      comment: 1
+
+    max :
+      read : 50
+      receiving : 1000
+      comment : 5
+
+    mid :
+      receiving : 200
+
+    weight:
+      level: 5
+      status: 2
+
+    time.second: 864000
+    #base.user.level: 3
+    baseuserlevel: 3
+    defaultscore: 400
+    plantcarescore: 400
+    answered :
+      per:
+        1 :
+          popular: 80
+          hot: 80
+
+        2 :
+          popular: 30
+          hot: 30
+
+        3 :
+          popular: 20
+          hot: 20
+
+        4 :
+          popular: 10
+          hot: 10
+
+        5 :
+          popular: 5
+          hot: 5
+
+        6 :
+          popular: 5
+          hot: 5
+
+    ranked :
+      per:
+        1: 60
+        2: 50
+        3: 50
+        4: 40
+        5: 40
+        6: 30
+      receiving: 100
+    commentpointper: 140
+
+
+

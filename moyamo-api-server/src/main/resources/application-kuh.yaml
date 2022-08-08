@@ -1,0 +1,226 @@
+spring:
+  #이메일 인증 확인, 서버 정보 설정
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: no-reply@simda.co
+    password: 1nf0bank###
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+
+    default-property-inclusion: always
+
+  webflux:
+    static-path-pattern: /**
+
+  #
+  #  security:
+  #    oauth2:
+  #      client:
+  #        registration:
+  #          naver:
+  #            clientId: ZZFDrX32pwKQBtqddrAs
+  #            clientSecret: B_F_Klw77m
+
+
+  rabbitmq:
+    host: 39.117.41.173
+    port: 5672
+    username: moyamo
+    password: pwmoyamo
+    listener:
+      direct:
+        retry:
+          max-attempts: 3
+      simple:
+        batch-size: 10
+        max-concurrency: 10
+        retry:
+          max-attempts: 3
+      type: simple
+
+  datasource:
+    url: jdbc:mysql://moyamo-develop.c7mmfvbcxzve.ap-northeast-2.rds.amazonaws.com:3306/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC
+    username: moyamodb
+    password: moyamodbpw
+    driverClassName: com.mysql.cj.jdbc.Driver
+    platform: mysql
+    initialization-mode: always
+    hikari:
+      connection-timeout: 5000
+      validation-timeout: 1000
+      minimum-idle: 5
+      maximum-pool-size: 10
+      max-lifetime: 30000
+      leak-detection-threshold: 10000
+      idle-timeout: 10000
+  jpa:
+    open-in-view: false
+    database: MYSQL
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+
+    properties:
+      hibernate:
+
+        #5.2 auto-inclument 이슈
+        use-new-id-generator-mappings: false
+        enable_lazy_load_no_trans: true
+        format_sql: true
+        use_sql_comments: true
+        dialect: org.hibernate.spatial.dialect.mysql.MySQL5SpatialDialect
+        default_batch_fetch_size: 100
+        max_fetch_depth: 6
+        cache:
+          region_prefix: hibernate
+          use_second_level_cache: false
+          region:
+            factory_class: org.hibernate.cache.ehcache.EhCacheRegionFactory
+        search:
+          elasticsearch.analysis_definition_provider: net.infobank.moyamo.search.elasticsearch.CustomProvider
+          # 인덱싱 차단
+          #          autoregister_listeners: false
+          #          indexing_strategy: manual
+          # 인덱싱 차단 End
+          default:
+            indexmanager: elasticsearch   #5.6.16
+            elasticsearch:
+              host: http://39.117.41.173:9200
+              index_schema_management_strategy: update   #update
+              #username: elastic
+              #password: changemez
+              log:
+                json_pretty_printing: true
+              required_index_status: yellow
+              dynamic_mapping: true
+              update_all_types: true
+
+  application:
+    name: example
+  cache:
+    type: redis
+    redis:
+      time-to-live: 30s
+
+
+  redis:
+    host: 39.117.41.173
+    port: 6379
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus, metrics
+
+  health:
+    circuitbreakers.enabled: true
+    ratelimiters.enabled: false
+
+
+#
+#resilience4j.circuitbreaker:
+#  configs:
+#    default:
+#      registerHealthIndicator: true
+#
+#resilience4j.ratelimiter:
+#  configs:
+#    default:
+#      registerHealthIndicator: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 500
+        permittedNumberOfCallsInHalfOpenState: 30
+        waitDurationInOpenState: 10000
+        failureRateThreshold: 60
+        eventConsumerBufferSize: 10
+        registerHealthIndicator: true
+      someShared:
+        slidingWindowSize: 50
+        permittedNumberOfCallsInHalfOpenState: 10
+    instances:
+      default:
+        baseConfig: default
+        waitDurationInOpenState: 5000
+      backendB:
+        baseConfig: someShared
+
+  timelimiter:
+    instances:
+      default:
+        timeoutDuration: 3s
+        cancelRunningFuture: true
+
+reactor:
+  netty:
+    http:
+      server:
+        accessLogEnabled: true
+
+feign:
+  client:
+    config:
+      default: # @FeignClient 에서 name 값, 전역으로 설정하려면 default
+        connectTimeout: 5000
+        readTimeout: 2000
+        loggerLevel: FULL
+
+#logging:
+#  level:
+#    com.zaxxer.hikari.HikariConfig: DEBUG
+#    com.zaxxer.hikari: TRACE
+
+logging:
+  #    file: "logs/application.log"
+  level:
+    org:
+      hibernate.type.descriptor.sql: trace
+
+
+
+cloud:
+  aws:
+    #    s3:
+    #      bucket: "moyamo-3"
+    credentials:
+      accessKey: AKIAIRCS4T66XNKLTCIQ
+      secretKey: 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
+    s3:
+      bucket: moyamo-develop
+    region:
+      static: ap-northeast-2
+
+infobank:
+  emma:
+    server:
+      url: http://172.31.43.152:8085
+  token:
+    accessToken:
+      expiredAt:
+        minutes: 1200
+    refreshToken:
+      expiredAt:
+        months: 2
+  mt:
+    datasource:
+      url: jdbc:mysql://172.16.0.134/itvMnStudioTemplate?characterEncoding=euckr
+      username: itv
+      password: itvpw
+      driverClassName: com.mysql.jdbc.Driver
+    callback: 0317083900
+    msg: "[모야모] 휴대폰 인증번호 [#authCode]를 입력해 주세요."

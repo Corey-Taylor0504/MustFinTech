@@ -1,0 +1,13 @@
+/logs/
+target/
+logs/
+build/
+.classpath
+.factorypath
+.project
+
+### Intellij ###
+.idea
+.settings
+.mvn/
+.gradle/
