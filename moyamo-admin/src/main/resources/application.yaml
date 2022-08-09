@@ -144,7 +144,7 @@ spring:
               host: http://localhost:9200
               index_schema_management_strategy: update   #update
               #username: elastic
-              #password: changemez
+              #password: HXdpHjm-7h-m10sZ9vky
               log:
                 json_pretty_printing: true
               required_index_status: yellow

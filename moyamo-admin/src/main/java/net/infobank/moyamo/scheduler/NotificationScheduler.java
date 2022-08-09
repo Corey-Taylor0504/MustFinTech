@@ -54,7 +54,7 @@ public class NotificationScheduler {
 		@Transactional
 		@Scheduled(cron="*/10 * * * * *")
 		public void scheduler() {
-			log.info("Notification Scheduled(cron=10 * * * * *)");
+//			log.info("Notification Scheduled(cron=10 * * * * *)");
 			List<NotificationAdmin> notificationList = adminNotificationService.findByReservedTime();
 
 			List<User> recipientWithMentionUsers;
