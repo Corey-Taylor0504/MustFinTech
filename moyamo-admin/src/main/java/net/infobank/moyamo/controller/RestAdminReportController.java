@@ -100,12 +100,15 @@ public class RestAdminReportController {
 		User loginUser = authUtils.getCurrentUser();
 		log.info("ReportID : {}, PostingID : {}, ChangeStatus : {}", reportId, id, reportStatus);
 		ReportComment report = adminReportCommentService.findById(reportId);
+		log.info("REACHED 1st -> report : {}, comment : {}, status : {}", report.getId(), report.getRelation().getComment(), reportStatus);
 		adminReportCommentService.updateAll(report.getRelation().getComment(), reportStatus);
+		log.info("REACHED 2nd -> updated report status : {}", report.getReportStatus());
 
 
 		boolean isBlind = reportStatus.equals(ReportStatus.BLOCK);
 		postingService.blindComment(id, loginUser, isBlind);
 
+		log.info("REACHED 4th -> blinded comment");
 		map.put("resultCode", "1000");
 		map.put("data", "");
 		return new ResponseEntity<>(map, HttpStatus.OK);
