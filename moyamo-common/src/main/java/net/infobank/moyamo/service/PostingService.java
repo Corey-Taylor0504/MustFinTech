@@ -1624,6 +1624,7 @@ public class PostingService extends AbstractSearchIndexer {
             throw new MoyamoPermissionException(MoyamoPermissionException.Messages.NOT_AUTHORIZED);
         }
 
+        log.info("REACHED 3rd -> comment blinding");
         if (comment.isDelete()) {
             throw new MoyamoGlobalException(MoyamoGlobalException.Messages.DELETED_POSTING);
         }
