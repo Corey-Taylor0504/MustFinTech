@@ -43,4 +43,9 @@ public class AdminReportPostingService {
     public int updateAll(Posting posting, ReportStatus status) {
         return reportPostingRepository.updateAll(posting, status);
     }
+
+    @Transactional
+    public int updateReportStatus(ReportPosting report, ReportStatus status) {
+        return reportPostingRepository.updateReportStatus(report, status);
+    }
 }

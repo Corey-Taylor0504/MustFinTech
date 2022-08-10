@@ -33,6 +33,10 @@ public interface ReportPostingRepository extends JpaRepository<ReportPosting, Lo
     List<Tuple> countGroupByUsers(@Param("userIds")List<Long> userIds);
 
     @Modifying
-    @Query("update ReportPosting rc set rc.reportStatus = :status where rc.relation.posting.id = :#{#posting.id}")
+    @Query("update ReportPosting set reportStatus = :status where relation.posting.id = :#{#posting.id}")
     int updateAll(@Param("posting") Posting posting, @Param("status") ReportStatus status);
+
+    @Modifying
+    @Query("update ReportPosting rp set rp.reportStatus = :status where rp.id = :#{#report.id}")
+    int updateReportStatus(@Param("report") ReportPosting report, @Param("status") ReportStatus status);
 }

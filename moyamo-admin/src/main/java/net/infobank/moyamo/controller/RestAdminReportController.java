@@ -82,7 +82,8 @@ public class RestAdminReportController {
 		User loginUser = authUtils.getCurrentUser();
 		log.info("ReportID : {}, PostingID : {}, ChangeStatus : {}", reportId, id, reportStatus);
 		ReportPosting report = adminReportPostingService.findById(reportId);
-		adminReportPostingService.updateAll(report.getRelation().getPosting(), reportStatus);
+//		adminReportPostingService.updateAll(report.getRelation().getPosting(), reportStatus); // By this line, getting error.
+		adminReportPostingService.updateReportStatus(report, reportStatus);
 		boolean isBlind = reportStatus.equals(ReportStatus.BLOCK);
 		postingService.blindPosting(id, loginUser, isBlind);
 
