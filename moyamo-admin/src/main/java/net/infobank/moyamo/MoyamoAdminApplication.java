@@ -2,13 +2,21 @@ package net.infobank.moyamo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableFeignClients(basePackages = "net.infobank.moyamo")
 @EnableScheduling
 @SpringBootApplication
-public class MoyamoAdminApplication {
+public class MoyamoAdminApplication extends SpringBootServletInitializer {
+
+	@Override
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(MoyamoAdminApplication.class);
+	}
+
 	public static void main(String[] args) {
 		SpringApplication.run(MoyamoAdminApplication.class, args);
 	}

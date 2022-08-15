@@ -153,8 +153,8 @@ spring:
           #          autoregister_listeners: false
           #          indexing_strategy: manual
           # 인덱싱 차단 End
-#          autoregister_listeners: false
-#          indexing_strategy: manual
+          autoregister_listeners: false
+          indexing_strategy: manual
 
           default:
             indexmanager: elasticsearch   #5.6.16

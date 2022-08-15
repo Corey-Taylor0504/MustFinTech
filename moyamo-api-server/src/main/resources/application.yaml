@@ -1,5 +1,6 @@
 spring:
-  profiles.active: pys
+  profiles:
+    active: pys
 ---
 
 

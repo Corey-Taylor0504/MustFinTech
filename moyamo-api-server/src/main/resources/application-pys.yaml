@@ -58,9 +58,12 @@ spring:
 #    url: jdbc:mysql://localhost:3306/moyamo_example?characterEncoding=utf-8&serverTimezone=UTC
 #    username: root
 #    password: yspark9719!
-    url: jdbc:mysql://moyamo-develop.c7mmfvbcxzve.ap-northeast-2.rds.amazonaws.com/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC
-    username: moyamodb
-    password: moyamodbpw
+#    url: jdbc:mysql://moyamo-develop.c7mmfvbcxzve.ap-northeast-2.rds.amazonaws.com/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC
+#    username: moyamodb
+#    password: moyamodbpw
+    url: jdbc:mysql://localhost:3306/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC
+    username: root
+    password:
     driverClassName: com.mysql.cj.jdbc.Driver
     platform: mysql
     initialization-mode: always
@@ -106,6 +109,8 @@ spring:
           #          autoregister_listeners: false
           #          indexing_strategy: manual
           # 인덱싱 차단 End
+          autoregister_listeners: false
+          indexing_strategy: manual
           default:
             indexmanager: elasticsearch   #5.6.16
             elasticsearch:

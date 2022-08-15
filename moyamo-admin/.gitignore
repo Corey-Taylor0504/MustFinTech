@@ -2,6 +2,8 @@
 target/
 logs/
 build/
+.gradle/
 
 .idea
 .settings
+
