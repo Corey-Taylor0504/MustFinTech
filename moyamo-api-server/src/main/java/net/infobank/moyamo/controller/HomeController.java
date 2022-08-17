@@ -6,12 +6,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.infobank.moyamo.api.service.HomeService;
 import net.infobank.moyamo.common.controllers.CommonResponse;
 import net.infobank.moyamo.common.controllers.CommonResponseCode;
-import net.infobank.moyamo.dto.BannerDto;
-import net.infobank.moyamo.dto.GoodsDto;
-import net.infobank.moyamo.dto.HomeTotalDto;
-import net.infobank.moyamo.dto.PostingDto;
+import net.infobank.moyamo.dto.*;
 import net.infobank.moyamo.enumeration.PostingType;
 import net.infobank.moyamo.json.Views;
+import net.infobank.moyamo.models.Comment;
+import net.infobank.moyamo.models.Posting;
 import net.infobank.moyamo.models.Ranking;
 import net.infobank.moyamo.models.User;
 import net.infobank.moyamo.service.PostingService;
@@ -22,10 +21,73 @@ import org.springframework.cloud.client.circuitbreaker.CircuitBreaker;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+
+
+class CommentLite {
+    private String comment;
+
+    public String getComment() {
+        return this.comment;
+    }
+
+    private ArrayList<String> comment_photo_links;
+
+    public ArrayList<String> getCommentPhotoLinks() {
+        return this.comment_photo_links;
+    }
+
+    CommentLite(String comment, ArrayList<String> photo_links) {
+        this.comment = comment;
+        this.comment_photo_links = photo_links;
+    }
+}
+
+class AIData {
+    private Long id;
+    private String title;
+    private String text;
+    private ArrayList<String> clinic_photo_link;
+    private ArrayList<CommentLite> comments;
+
+    AIData(long id, String title, String text, ArrayList<String> photo_links, ArrayList<CommentLite> comments) {
+        this.id = id;
+        this.title = title;
+        this.text = text;
+        this.clinic_photo_link = photo_links;
+        this.comments = comments;
+    }
+
+    public long getId() {
+        return this.id;
+    }
+
+    public String getTitle() {
+        return this.title;
+    }
+
+    public String getText() {
+        return this.text;
+    }
+
+    public ArrayList<String> getClinicPhotoLink() {
+        return this.clinic_photo_link;
+    }
+
+    public List<CommentLite> getComments() {
+        return this.comments;
+    }
+}
 
 @SuppressWarnings("java:S4684")
 @Slf4j
@@ -41,6 +103,7 @@ public class HomeController {
     private final PostingService postingService;
     private final HomeService homeService;
     private final RankingService rankingService;
+    private final EntityManager em;
 
     @Qualifier("homeCircuitBreaker")
     private final CircuitBreaker cb;
@@ -66,6 +129,70 @@ public class HomeController {
             log.error("PostingController.search", throwable);
             return new CommonResponse<>(CommonResponseCode.SUCCESS.getResultCode(), Collections.emptyList(), throwable.getMessage());
         });
+    }
+
+    /* Getting sample plant clinic data for AI modeling */
+//    @JsonView(Views.BaseView.class)
+    @GetMapping(path = "/ai")
+//    public CommonResponse<List<AIData>> doAIPlantClinic(@ApiIgnore User currentUser, @RequestParam(defaultValue = "0") int offset, @RequestParam(required = false, defaultValue = "5") int count, @RequestParam(defaultValue = "id") String orderBy, @RequestParam(required = false, defaultValue = "") String sortBy) {
+    public List<AIData> doAIPlantClinic(@ApiIgnore User currentUser, @RequestParam(defaultValue = "0") int offset, @RequestParam(required = false, defaultValue = "5") int count, @RequestParam(defaultValue = "id") String orderBy, @RequestParam(required = false, defaultValue = "") String sortBy) {
+        try {
+            RequestParamValidator.validateOrderBy(orderBy);
+        } catch (IllegalArgumentException e) {
+//            return new CommonResponse<>(CommonResponseCode.FAIL.getResultCode(), Collections.emptyList(), e.getMessage());
+        }
+
+//        return cb.run(() -> {
+            List<AIData> results = new ArrayList<>();
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<?> query = cb.createQuery(PostingType.clinic.getClazz());
+
+            List<Predicate> predicates = new ArrayList<>();
+            Root<? extends Posting> root = query.from(PostingType.clinic.getClazz());
+
+            query.where(predicates.toArray(new Predicate[]{})).orderBy(cb.desc(root.get("id")));
+//            List<PostingDto> postings = em.createQuery(query).setMaxResults(10).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
+            List<PostingDto> postings = em.createQuery(query).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
+
+            for (PostingDto posting: postings) {
+
+                String queryBuffer = "select * from comment a join ( select comment0_.id id from comment comment0_ where comment0_.posting_id=" +
+                        posting.getId() +
+                        " and comment0_.parent_id is null order by id desc limit " +
+                        count +
+                        " ) b on a.id = b.id order by a.id desc";
+
+                List<CommentDto> comments_per_posting = ((List<Comment>)em.createNativeQuery(queryBuffer, Comment.class).getResultList()).stream().map(CommentDto::of).collect(Collectors.toList());
+
+                ArrayList<String> clinic_photo_links = new ArrayList<>();
+                for (AttachmentDto att: posting.getAttachments()) {
+                    String clinic_photo_link = att.getPhotoUrl();
+                    if (clinic_photo_link != null) clinic_photo_links.add(att.getPhotoUrl());
+                }
+
+                ArrayList<CommentLite> comments = new ArrayList<>();
+
+//                for(CommentDto comment: comments_per_posting) {
+                for (int i = 0; i < comments_per_posting.size(); i ++) {
+                    CommentDto comment = comments_per_posting.get(i);
+                    ArrayList<String> photo_links_per_comment = new ArrayList<>();
+                    for (AttachmentDto att: comment.getAttachments()) {
+                        if (att.getPhotoUrl() != null) photo_links_per_comment.add(att.getPhotoUrl());
+                    }
+                    comments.add(new CommentLite(comment.getText(), photo_links_per_comment));
+                    if (!comment.getChildren().isEmpty()) comments_per_posting.addAll(comment.getChildren());
+                }
+
+                results.add(new AIData(posting.getId(), posting.getTitle(), posting.getText(), clinic_photo_links, comments));
+            }
+
+            return new ArrayList<>(results);
+//            return new CommonResponse<>(CommonResponseCode.SUCCESS.getResultCode(), new ArrayList<>(results));
+//        }, throwable -> {
+//            log.error("PostingController.search", throwable);
+//            return new CommonResponse<>(CommonResponseCode.SUCCESS.getResultCode(), Collections.emptyList(), throwable.getMessage());
+//        });
     }
 
     @JsonView(Views.BaseView.class)
