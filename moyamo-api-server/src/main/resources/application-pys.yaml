@@ -40,7 +40,7 @@ spring:
 
   rabbitmq:
     host: localhost #hyper, pwhyper
-    port: 5672
+    port: 15672
     username: guest
     password: guest
     listener:
@@ -117,7 +117,7 @@ spring:
               #host: http://15.165.135.64:9200
               host: http://localhost:9200
               index_schema_management_strategy: update   #update
-              username: 8JLrUEN
+              username: es-cluster
               #username: elastic
               #password: changemez
               log:

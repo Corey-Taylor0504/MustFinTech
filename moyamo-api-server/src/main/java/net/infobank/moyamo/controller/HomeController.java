@@ -152,8 +152,11 @@ public class HomeController {
             Root<? extends Posting> root = query.from(PostingType.clinic.getClazz());
 
             query.where(predicates.toArray(new Predicate[]{})).orderBy(cb.desc(root.get("id")));
-//            List<PostingDto> postings = em.createQuery(query).setMaxResults(10).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
-            List<PostingDto> postings = em.createQuery(query).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
+
+            offset = 5001;
+            int maxItems = 5000;
+            List<PostingDto> postings = em.createQuery(query).setFirstResult(offset).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
+//            List<PostingDto> postings = em.createQuery(query).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
 
             for (PostingDto posting: postings) {
 
