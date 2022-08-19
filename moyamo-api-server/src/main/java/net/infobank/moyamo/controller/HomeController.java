@@ -132,9 +132,7 @@ public class HomeController {
     }
 
     /* Getting sample plant clinic data for AI modeling */
-//    @JsonView(Views.BaseView.class)
     @GetMapping(path = "/ai")
-//    public CommonResponse<List<AIData>> doAIPlantClinic(@ApiIgnore User currentUser, @RequestParam(defaultValue = "0") int offset, @RequestParam(required = false, defaultValue = "5") int count, @RequestParam(defaultValue = "id") String orderBy, @RequestParam(required = false, defaultValue = "") String sortBy) {
     public List<AIData> doAIPlantClinic(@ApiIgnore User currentUser, @RequestParam(defaultValue = "0") int offset, @RequestParam(required = false, defaultValue = "5") int count, @RequestParam(defaultValue = "id") String orderBy, @RequestParam(required = false, defaultValue = "") String sortBy) {
         try {
             RequestParamValidator.validateOrderBy(orderBy);
@@ -142,7 +140,6 @@ public class HomeController {
 //            return new CommonResponse<>(CommonResponseCode.FAIL.getResultCode(), Collections.emptyList(), e.getMessage());
         }
 
-//        return cb.run(() -> {
             List<AIData> results = new ArrayList<>();
 
             CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -156,7 +153,6 @@ public class HomeController {
             offset = 5001;
             int maxItems = 5000;
             List<PostingDto> postings = em.createQuery(query).setFirstResult(offset).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
-//            List<PostingDto> postings = em.createQuery(query).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
 
             for (PostingDto posting: postings) {
 
@@ -176,7 +172,6 @@ public class HomeController {
 
                 ArrayList<CommentLite> comments = new ArrayList<>();
 
-//                for(CommentDto comment: comments_per_posting) {
                 for (int i = 0; i < comments_per_posting.size(); i ++) {
                     CommentDto comment = comments_per_posting.get(i);
                     ArrayList<String> photo_links_per_comment = new ArrayList<>();
@@ -191,11 +186,6 @@ public class HomeController {
             }
 
             return new ArrayList<>(results);
-//            return new CommonResponse<>(CommonResponseCode.SUCCESS.getResultCode(), new ArrayList<>(results));
-//        }, throwable -> {
-//            log.error("PostingController.search", throwable);
-//            return new CommonResponse<>(CommonResponseCode.SUCCESS.getResultCode(), Collections.emptyList(), throwable.getMessage());
-//        });
     }
 
     @JsonView(Views.BaseView.class)
