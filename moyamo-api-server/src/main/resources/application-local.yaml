@@ -40,7 +40,7 @@ spring:
 
   rabbitmq:
     host: localhost #hyper, pwhyper
-    port: 15672
+    port: 5672
     username: guest
     password: guest
     listener:
@@ -55,12 +55,6 @@ spring:
       type: simple
 
   datasource:
-#    url: jdbc:mysql://localhost:3306/moyamo_example?characterEncoding=utf-8&serverTimezone=UTC
-#    username: root
-#    password: yspark9719!
-#    url: jdbc:mysql://moyamo-develop.c7mmfvbcxzve.ap-northeast-2.rds.amazonaws.com/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC
-#    username: moyamodb
-#    password: moyamodbpw
     url: jdbc:mysql://localhost:3306/moyamo_db?characterEncoding=utf-8&serverTimezone=UTC
     username: root
     password:
@@ -109,16 +103,14 @@ spring:
           #          autoregister_listeners: false
           #          indexing_strategy: manual
           # 인덱싱 차단 End
-          autoregister_listeners: false
-          indexing_strategy: manual
+#          autoregister_listeners: false
+#          indexing_strategy: manual
           default:
             indexmanager: elasticsearch   #5.6.16
             elasticsearch:
-              #host: http://15.165.135.64:9200
               host: http://localhost:9200
               index_schema_management_strategy: update   #update
               username: es-cluster
-              #username: elastic
               #password: changemez
               log:
                 json_pretty_printing: true

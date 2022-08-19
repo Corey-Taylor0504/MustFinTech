@@ -2,20 +2,26 @@
 
 ## 은전한닢 다운로드
 ```aidl
-ES_VERSION = 5.6.16 
-bash <(curl -s https://bitbucket.org/eunjeon/seunjeon/raw/master/elasticsearch/scripts/downloader.sh) -e 5.6.16 -p 5.4.1.1
+bash curl -s https://bitbucket.org/eunjeon/seunjeon/raw/master/elasticsearch/scripts/downloader.sh -e 5.6.16 -p 5.4.1.1
 ```
-
+#### Move downloaded zip file to the root directory of ES installed
 
 ## 은전한닢 설치
-
-./bin/elasticsearch-plugin install file:///....{plugin}/.zip
-
+```run the below command on the root directory of ES
+(example) 
+./bin/elasticsearch-plugin install file://`pwd`/elasticsearch-analysis-seunjeon-5.4.1.1.zip
+```
 
 ## analyzer 설정
 
 - aws elasticsearch 는 _close 명령을 실행할 수 없어 사용할 수 없음 alias 를 통한 설정 필요
 
+#### Run the below commands on different terminals respectively to create moyamo_3 index.
+```
+.\bin\elasticsearch
+```
+
+``` Copy this commands to shell script file and run bash ```
 
 ```
 curl -XPOST 'http://localhost:9200/moyamo_3/_close'
