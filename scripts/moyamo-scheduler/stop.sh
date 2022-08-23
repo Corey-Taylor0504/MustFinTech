@@ -1,0 +1,1 @@
+sudo pkill -9 -ef moyamo-scheduler-0.0.1-SNAPSHOT

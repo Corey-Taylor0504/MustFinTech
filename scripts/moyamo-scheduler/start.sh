@@ -1,0 +1,1 @@
+sudo java -jar -Dspring.profiles.active=local ../../moyamo-scheduler/build/libs/moyamo-scheduler-0.0.1-SNAPSHOT.jar > /dev/null 2> /dev/null < /dev/null &
