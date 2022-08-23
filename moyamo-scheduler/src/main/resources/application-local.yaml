@@ -10,7 +10,7 @@ moyamo:
   jobs:
     statistics:
 #      cron: "0 0 */1 * * *"
-      cron: "* * * * *"
+      cron: "*/10 * * * * *"
       enable: true
     notification:
       delivery:
