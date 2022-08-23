@@ -1,7 +1,7 @@
 #elasticsearch 설정방법
 
 ## 은전한닢 다운로드
-```aidl
+```bash
 bash curl -s https://bitbucket.org/eunjeon/seunjeon/raw/master/elasticsearch/scripts/downloader.sh -e 5.6.16 -p 5.4.1.1
 ```
 #### Move downloaded zip file to the root directory of ES installed
@@ -24,6 +24,8 @@ bash curl -s https://bitbucket.org/eunjeon/seunjeon/raw/master/elasticsearch/scr
 ``` Copy this commands to shell script file and run bash ```
 
 ```
+curl -XPUT 'http://localhost:9200/moyamo_3'
+
 curl -XPOST 'http://localhost:9200/moyamo_3/_close'
 
 curl -XPUT 'http://localhost:9200/moyamo_3/_settings' -d '

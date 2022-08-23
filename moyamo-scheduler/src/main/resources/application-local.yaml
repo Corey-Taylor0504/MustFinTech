@@ -9,8 +9,8 @@ server:
 moyamo:
   jobs:
     statistics:
-      cron: "0 0 */1 * * *"
-      #cron: "*/10 * * * * *"
+#      cron: "0 0 */1 * * *"
+      cron: "*/10 * * * * *"
       enable: true
     notification:
       delivery:
@@ -106,7 +106,7 @@ spring:
             elasticsearch:
               host: http://localhost:9200
               index_schema_management_strategy: update
-              #username: elastic
+              username: es-cluster
               #password: changemez
               log:
                 json_pretty_printing: true

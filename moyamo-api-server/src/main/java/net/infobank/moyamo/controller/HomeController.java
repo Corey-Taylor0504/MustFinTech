@@ -150,9 +150,9 @@ public class HomeController {
 
             query.where(predicates.toArray(new Predicate[]{})).orderBy(cb.desc(root.get("id")));
 
-            offset = 5001;
-            int maxItems = 5000;
-            List<PostingDto> postings = em.createQuery(query).setFirstResult(offset).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
+//            offset = 5001;
+            int maxItems = 10;
+            List<PostingDto> postings = em.createQuery(query).setFirstResult(offset).setMaxResults(maxItems).getResultList().stream().map(o -> PostingDto.of((Posting)o)).collect(Collectors.toList());
 
             for (PostingDto posting: postings) {
 
